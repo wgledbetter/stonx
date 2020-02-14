@@ -8,10 +8,12 @@ from shutil import which
 import urllib.parse as up
 import pandas as pd
 import numpy as np
+import datetime
 
 #-----
 import config
 import api_urls
+from option import Option
 
 
 #-------------------------------------------------------------------------------
@@ -130,9 +132,29 @@ class API:
 
     #---------------------------------------------------------------------------
     ## Basic Methods
-    def options_DF(self, symbol, type='ALL', strikeCount=8):
+    def options(self, symbol, type='ALL', strikeCount=8, weeks=3.5):
         if self.broker == 'tdameritrade':
-            print('gimme a bit')
+            enddate = (datetime.datetime.now() + datetime.timedelta(weeks=weeks)).strftime('%Y-%m-%d')
+            PARAMS = {'symbol': symbol,
+                      'contractType': 'ALL',
+                      'strikeCount': strikeCount,
+                      'toDate': enddate}
+            rq = requests.get(api_urls.TD_OPTIONCHAIN, headers=self.td_headers())
+            calls = []
+            callDic = rq.json()['callExpDateMap']
+            for d in callDic:
+                for p in callDic[d]:
+                    opDic = callDic[d][p][0]
+                    calls.append(Option(symbol, 1, opDic['last'], 0, float(p), d, ask=opDic['ask'], bid=opDic['bid']))
+
+            puts = []
+            putDic = rq.json()['putExpDateMap']
+            for d in putDic:
+                for p in putDic[d]:
+                    opDic = putDic[d][p][0]
+                    puts.append(Option(symbol, -1, opDic['last'], 0, float(p), d, ask=opDic['ask'], bid=opDic['bid']))
+
+            return {'calls': calls, 'puts': puts}
 
 
     def history_DF(self, symbol, ptype='day', period=10, ftype='minute', freq=15):
@@ -152,11 +174,14 @@ class API:
     def calcWeeklyVolatility(self, symbol, months=3):
         # Calculate Historical Weekly Volatility
         # Standard deviation of daily high vs. low
-        df = self.history_DF(symbol, ptype='month', period=months, ftype='daily', freq=1)
-        delta = []
-        for i, c in df.iterrows():
-            delta.append((c['high'] - c['low'])/c['open'])
+        if months >= 1:
+            df = self.history_DF(symbol, ptype='month', period=months, ftype='daily', freq=1)
+            delta = []
+            for i, c in df.iterrows():
+                delta.append((c['high'] - c['low'])/c['open'])
 
-        std_day = np.array(delta).std()
-        std_wk = std_day*np.sqrt(5)
-        return std_wk
+            std_day = np.array(delta).std()
+            std_wk = std_day*np.sqrt(5)
+            return std_wk
+        else:
+            fake = 69

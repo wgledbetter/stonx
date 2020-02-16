@@ -1,4 +1,4 @@
-import parameters as p
+import parameters
 
 MULT = 100
 
@@ -30,12 +30,12 @@ class Option:
     def cost(self, option_price=None):
         if option_price == None:
             option_price = self.enter_price
-        return self.n*(MULT*self.BS*option_price + p.option_commission)
+        return self.n*(MULT*self.BS*option_price + parameters.option_commission)
 
 
     def exerciseValue(self, stock_price):
-        return -self.cost() + self.inTheMoney(stock_price)*self.n*MULT*self.CP*self.BS*(stock_price - self.strike)
+        return -self.cost() + self.inTheMoney(stock_price)*self.n*MULT*self.CP*(stock_price - self.strike)
 
 
     def exitValue(self, option_price):
-        return -self.BS*MULT*self.n*(self.enter_price - option_price) - 2*self.n*p.option_commission
+        return -self.BS*MULT*self.n*(self.enter_price - option_price) - 2*self.n*parameters.option_commission

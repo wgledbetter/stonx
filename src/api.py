@@ -13,6 +13,7 @@ import datetime
 #-----
 import config
 import api_urls
+import parameters as p
 from option import Option
 
 
@@ -140,19 +141,21 @@ class API:
                       'strikeCount': strikeCount,
                       'toDate': enddate}
             rq = requests.get(api_urls.TD_OPTIONCHAIN, headers=self.td_headers())
-            calls = []
+            calls = {}
             callDic = rq.json()['callExpDateMap']
             for d in callDic:
+                calls[d] = {}
                 for p in callDic[d]:
                     opDic = callDic[d][p][0]
-                    calls.append(Option(symbol, 1, opDic['last'], 0, float(p), d, ask=opDic['ask'], bid=opDic['bid']))
+                    calls[d][p] = Option(symbol, p.CALL, opDic['last'], 0, float(p), d, ask=opDic['ask'], bid=opDic['bid'])
 
-            puts = []
+            puts = {}
             putDic = rq.json()['putExpDateMap']
             for d in putDic:
+                puts[d] = {}
                 for p in putDic[d]:
                     opDic = putDic[d][p][0]
-                    puts.append(Option(symbol, -1, opDic['last'], 0, float(p), d, ask=opDic['ask'], bid=opDic['bid']))
+                    puts[d][p] = Option(symbol, p.PUT, opDic['last'], 0, float(p), d, ask=opDic['ask'], bid=opDic['bid'])
 
             return {'calls': calls, 'puts': puts}
 

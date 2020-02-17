@@ -115,6 +115,24 @@ class OpStrat:
         return ep[1][-1][0]
 
 
+    #---------------------------------------------------------------------------
+    ## Generate
+    @classmethod
+    def gen(cls, stratname, opchain):
+        # Returns list of all possible "stratnames" on the options "opchain"
+        # opchain = {'calls': {'date1': {'strike1': Option(), 'strike2': Option()}, 'date2': {...}}, 'puts': {'date': {'strike': Option()}}}
+        # First check overlap in put and call strikes
+        callstrikes = []
+        calldate0 = next(iter(opchain['calls']))
+        for cs in opchain['calls'][calldate0]:
+            callstrikes.append(cs)
+
+        putstrikes = []
+        putdate0 = next(iter(opchain['puts']))
+        for ps in opchain['puts'][putdate0]:
+            putstrikes.append(ps)
+
+
 
 ################################################################################
 class IronCondor(OpStrat):
@@ -127,6 +145,16 @@ class IronCondor(OpStrat):
         self.oplist.append(Option(symbol, p.PUT, B_pr, p.SELL, B_st, expr=expr, n=n))
         self.oplist.append(Option(symbol, p.CALL, C_pr, p.SELL, C_st, expr=expr, n=n))
         self.oplist.append(Option(symbol, p.CALL, D_pr, p.BUY, D_st, expr=expr, n=n))
+
+
+    @classmethod
+    def structure(cls):
+        return {'A': [{'BS': p.BUY, 'CP': p.PUT, 'M': 1}],
+                'B': [{'BS': p.SELL, 'CP': p.PUT, 'M': 1}],
+                'C': [{'BS': p.SELL, 'CP': p.CALL, 'M': 1}],
+                'D': [{'BS': p.BUY, 'CP': p.CALL, 'M': 1}],
+                'n': 4
+                }
 
 
 #_______________________________________________________________________________
@@ -142,6 +170,16 @@ class IronButterfly(OpStrat):
         self.oplist.append(Option(symbol, p.CALL, C_pr, p.BUY, C_st, expr=expr, n=n))
 
 
+    @classmethod
+    def structure(cls):
+        return {'A': [{'BS': p.BUY, 'CP': p.PUT, 'M': 1}],
+                'B': [{'BS': p.SELL, 'CP': p.PUT, 'M': 1},
+                      {'BS': p.SELL, 'CP': p.CALL, 'M': 1}],
+                'C': [{'BS': p.BUY, 'CP': p.CALL, 'M': 1}],
+                'n': 4,
+                }
+
+
 #_______________________________________________________________________________
 class LongStraddle(OpStrat):
     # https://www.optionsplaybook.com/option-strategies/long-straddle/
@@ -151,6 +189,14 @@ class LongStraddle(OpStrat):
         self.oplist = []
         self.oplist.append(Option(symbol, p.CALL, A_cpr, p.BUY, A_st, expr=expr, n=n))
         self.oplist.append(Option(symbol, p.PUT, A_ppr, p.BUY, A_st, expr=expr, n=n))
+
+
+    @classmethod
+    def structure(cls):
+        return {'A': [{'BS': p.BUY, 'CP': p.CALL, 'M': 1},
+                      {'BS': p.BUY, 'CP': p.PUT, 'M': 1}],
+                'n': 2,
+                }
 
 
 #_______________________________________________________________________________
@@ -164,6 +210,14 @@ class LongStrangle(OpStrat):
         self.oplist.append(Option(symbol, p.CALL, B_pr, p.BUY, B_st, expr=expr, n=n))
 
 
+    @classmethod
+    def structure(cls):
+        return {'A': [{'BS': p.BUY, 'CP': p.PUT, 'M': 1}],
+                'B': [{'BS': p.BUY, 'CP': p.CALL, 'M': 1}],
+                'n': 2,
+                }
+
+
 #_______________________________________________________________________________
 class SkStPutButterfly(OpStrat):
     # https://www.optionsplaybook.com/option-strategies/broken-wing-butterfly-put/
@@ -174,3 +228,12 @@ class SkStPutButterfly(OpStrat):
         self.oplist.append(Option(symbol, p.PUT, A_pr, p.BUY, A_st, expr=expr, n=n))
         self.oplist.append(Option(symbol, p.PUT, C_pr, p.SELL, C_st, expr=expr, n=2*n))
         self.oplist.append(Option(symbol, p.PUT, D_pr, p.BUY, D_st, expr=expr, n=n))
+
+
+    @classmethod
+    def structure(cls):
+        return {'A': [{'BS': p.BUY, 'CP': p.PUT, 'M': 1}],
+                'B': [{'BS': p.SELL, 'CP': p.PUT, 'M': 2}],
+                'C': [{'BS': p.BUY, 'CP': p.PUT, 'M': 1}],
+                'n': 3,
+                }

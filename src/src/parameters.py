@@ -1,1 +1,0 @@
-option_commission = 0.65

@@ -48,6 +48,14 @@ class OpStrat:
         return ev
 
 
+    def anyInMoney(self, stock_price):
+        im = True
+        for op in self.oplist:
+            im = im and op.inTheMoney(stock_price)
+
+        return im
+
+
     #---------------------------------------------------------------------------
     ## Analysis
     def profitTrace(self):

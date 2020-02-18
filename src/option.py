@@ -4,16 +4,23 @@ MULT = 100
 
 class Option:
     ## Init
-    def __init__(self, symbol, CP, enter_price, BS, strike, expr, n=10, ask=0, bid=0):
+    def __init__(self, symbol, optype, prices, expr, n=10, ask=0, bid=0):
         self.symbol = symbol
-        self.CP = CP
-        self.enter_price = enter_price
-        self.BS = BS
-        self.strike = strike
+        self.CP = optype['CP']
+        self.premium = prices['premium']
+        self.BS = optype['BS']
+        self.strike = prices['strike']
         self.expr = expr
         self.n = n
         self.ask = ask
         self.bid = bid
+
+
+    @classmethod
+    def fromParams(cls, symbol, CP, premium, BS, strike, expr, n=10, ask=0, bid=0):
+        prices = {'premium': premium, 'strike': strike}
+        optype = {'CP': CP, 'BS': BS}
+        return cls(symbol, optype, prices, expr, n=n, ask=ask, bid=bid)
 
 
     #---------------------------------------------------------------------------
@@ -29,7 +36,7 @@ class Option:
 
     def cost(self, option_price=None):
         if option_price == None:
-            option_price = self.enter_price
+            option_price = self.premium
         return self.n*(MULT*self.BS*option_price + p.option_commission)
 
 
@@ -38,4 +45,4 @@ class Option:
 
 
     def exitValue(self, option_price):
-        return -self.BS*MULT*self.n*(self.enter_price - option_price) - 2*self.n*p.option_commission
+        return -self.BS*MULT*self.n*(self.premium - option_price) - 2*self.n*p.option_commission

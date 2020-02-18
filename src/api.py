@@ -133,7 +133,7 @@ class API:
 
     #---------------------------------------------------------------------------
     ## Basic Methods
-    def options(self, symbol, type='ALL', strikeCount=8, weeks=3.5):
+    def options(self, symbol, type='ALL', strikeCount=8, weeks=1):
         if self.broker == 'tdameritrade':
             enddate = (datetime.datetime.now() + datetime.timedelta(weeks=weeks)).strftime('%Y-%m-%d')
             PARAMS = {'symbol': symbol,

@@ -265,8 +265,8 @@ class LongStraddle(OpStrat):
         self.symbol = symbol
         self.oplist = []
         optype = LongStraddle.structure()
-        self.oplist.append(Option(symbol, optype['A'][0], struct['A'][0], struct['expr'], n=n*struct['A'][0]['M']))
-        self.oplist.append(Option(symbol, optype['A'][0], struct['A'][1], struct['expr'], n=n*struct['A'][1]['M']))
+        self.oplist.append(Option(symbol, optype['A'][0], struct['A'][0], struct['expr'], n=n*optype['A'][0]['M']))
+        self.oplist.append(Option(symbol, optype['A'][0], struct['A'][1], struct['expr'], n=n*optype['A'][1]['M']))
 
 
     @classmethod
@@ -332,3 +332,12 @@ class SkStPutButterfly(OpStrat):
                 'C': [{'BS': p.BUY, 'CP': p.PUT, 'M': 1}],
                 'n': 3,
                 }
+
+
+################################################################################
+stratlist = [IronCondor,
+             IronButterfly,
+             LongStraddle,
+             LongStrangle,
+             SkStPutButterfly,
+             ]

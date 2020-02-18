@@ -30,5 +30,15 @@ breakpoint()
 opchain = tdam.options('AAPL', weeks=3)
 strats = IronButterfly.gen(opchain)
 
+from instruments import instruments
+from opstrat import stratlist
+
+allstratcombs = {}
+for symbol in instruments:
+    allstratcombs[symbol] = []
+    opchain = tdam.options(symbol, type='ALL', strikeCount=12, weeks=1)
+    for strat in stratlist:
+        allstratcombs[symbol].append(strat.gen(opchain))
+
 
 breakpoint()

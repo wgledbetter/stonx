@@ -30,15 +30,25 @@ breakpoint()
 opchain = tdam.options('AAPL', weeks=3)
 strats = IronButterfly.gen(opchain)
 
-from instruments import instruments
+from instruments import test_instruments
 from opstrat import stratlist
 
 allstratcombs = {}
+failed = []
 for symbol in instruments:
     allstratcombs[symbol] = []
-    opchain = tdam.options(symbol, type='ALL', strikeCount=12, weeks=1)
+    try:
+        opchain = tdam.options(symbol, type='ALL', strikeCount=12, weeks=1)
+    except:
+        failed.append(symbol)
+        continue
+
     for strat in stratlist:
-        allstratcombs[symbol].append(strat.gen(opchain))
+        try:
+            allstratcombs[symbol].append(strat.gen(opchain))
+        except:
+            breakpoint()
+            print('StratGen Failed for {}: {}'.format(symbol, strat.name))
 
 
 breakpoint()

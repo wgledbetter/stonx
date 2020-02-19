@@ -196,6 +196,7 @@ class IronCondor(OpStrat):
     #     self.oplist.append(Option(symbol, p.CALL, C_pr, p.SELL, C_st, expr=expr, n=n))
     #     self.oplist.append(Option(symbol, p.CALL, D_pr, p.BUY, D_st, expr=expr, n=n))
 
+    name = 'IronCondor'
     def __init__(self, symbol, struct, n=10):
         self.name = 'Iron Condor'
         self.symbol = symbol
@@ -229,6 +230,7 @@ class IronButterfly(OpStrat):
     #     self.oplist.append(Option(symbol, p.CALL, B_cpr, p.SELL, B_st, expr=expr, n=n))
     #     self.oplist.append(Option(symbol, p.CALL, C_pr, p.BUY, C_st, expr=expr, n=n))
 
+    name = 'Iron Butterfly'
     def __init__(self, symbol, struct, n=10):
         self.name = 'Iron Butterfly'
         self.symbol = symbol
@@ -260,6 +262,7 @@ class LongStraddle(OpStrat):
     #     self.oplist.append(Option(symbol, p.CALL, A_cpr, p.BUY, A_st, expr=expr, n=n))
     #     self.oplist.append(Option(symbol, p.PUT, A_ppr, p.BUY, A_st, expr=expr, n=n))
 
+    name = 'Long Straddle'
     def __init__(self, symbol, struct, n=10):
         self.name = 'Long Straddle'
         self.symbol = symbol
@@ -287,6 +290,7 @@ class LongStrangle(OpStrat):
     #     self.oplist.append(Option(symbol, p.PUT, A_pr, p.BUY, A_st, expr=expr, n=n))
     #     self.oplist.append(Option(symbol, p.CALL, B_pr, p.BUY, B_st, expr=expr, n=n))
 
+    name = 'Long Strangle'
     def __init__(self, symbol, struct, n=10):
         self.name = 'Long Strangle'
         self.symbol = symbol
@@ -315,6 +319,7 @@ class SkStPutButterfly(OpStrat):
     #     self.oplist.append(Option(symbol, p.PUT, C_pr, p.SELL, C_st, expr=expr, n=2*n))
     #     self.oplist.append(Option(symbol, p.PUT, D_pr, p.BUY, D_st, expr=expr, n=n))
 
+    name = 'Broken Wing Put Butterfly'
     def __init__(self, symbol, struct, n=10):
         self.name = 'Broken Wing Put Butterfly'
         self.symbol = symbol

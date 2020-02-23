@@ -2,9 +2,10 @@ test_instruments = ['TSLA',
                     'SPCE',
                     'WM',
                     'MMM',
-                    'AMZN',
-                    'SPY',
-                    'OEX']
+                    # 'AMZN',
+                    # 'SPY',
+                    # 'OEX',
+                    'QQQ']
 
 
 popular = ['TSLA',

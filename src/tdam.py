@@ -139,11 +139,17 @@ class TDAM(API):
     #---------------------------------------------------------------------------
     ## Basic Methods
     def options(self, symbol, type='ALL', strikeCount=8, weeks=1):
-        enddate = (datetime.datetime.now() + datetime.timedelta(weeks=weeks)).strftime('%Y-%m-%d')
+        # Return opchain for the closest friday not greater than now()+weeks
+        enddate = (datetime.datetime.now() + datetime.timedelta(weeks=weeks))# .strftime('%Y-%m-%d')
+        oneDay = datetime.timedelta(days=1)
+        while enddate.isoweekday() != 4:
+            enddate -= oneDay
+
         PARAMS = {'symbol': symbol,
                   'contractType': 'ALL',
                   'strikeCount': strikeCount,
-                  'toDate': enddate}
+                  'fromDate': (enddate-oneDay).strftime('%Y-%m-%d'),
+                  'toDate': (enddate+oneDay).strftime('%Y-%m-%d')}
         rq = requests.get(urls.OPTIONCHAIN, headers=self.headers(), params=PARAMS)
         calls = {}
         callDic = rq.json()['callExpDateMap']

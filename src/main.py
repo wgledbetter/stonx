@@ -20,7 +20,7 @@ for symbol in instrument_list:
     print(symbol)
     allstratcombs[symbol] = []
     try:
-        opchain = tdam.options(symbol, type='ALL', strikeCount=s.opchain_size, weeks=1)
+        opchain = tdam.options(symbol, type='ALL', strikeCount=s.opchain_size, weeks=2)
     except:
         failed.append(symbol)
         print('OpChain Failed for {}'.format(symbol))
@@ -33,7 +33,10 @@ for symbol in instrument_list:
             print('StratGen Failed for {}: {}'.format(symbol, strat.name))
 
 
-# Evaluate
+# Evaluate and Filter
+def popOver(trio):
+    return trio[1] > s.min_prob_profit
+
 bigLongList = []
 pool = ProcessPool(nodes=getThreads())
 for symbol in allstratcombs:
@@ -42,29 +45,33 @@ for symbol in allstratcombs:
         price = tdam.lastPrice(symbol)
         wk_vol = tdam.calcWeeklyVolatility(symbol, months=3)
         print('{}: Price = {}, Weekly Volatility = {}'.format(symbol, price, wk_vol))
-        def evalFun(strat, price=price, wk_vol=wk_vol):
+        def evalPop(strat, price=price, wk_vol=wk_vol):
             pop = strat.probOfProfit(price, wk_vol)
+            # early = strat.probOfEarlyExercise(price, wk_vol)
+            return (strat, pop)
+
+        def evalExp(strat, price=price, wk_vol=wk_vol):
             exp = strat.expectedProfit(price, wk_vol)
-            early = strat.probOfEarlyExercise(price, wk_vol)
-            return (strat, pop, exp, early)
+            return exp
 
         for stratlist in allstratcombs[symbol]:
-            bigLongList += pool.map(evalFun, stratlist)
+            fullPop = pool.map(evalPop, stratlist)
+            filt = list(filter(popOver, fullPop))
+            filtExp = pool.map(evalExp, [st for st, pp in filt])
+            flat = list(zip(*filt))
+            flat.append(filtExp)
+            bigLongList += list(zip(*flat))
+            print('  Completed {}'.format(stratlist[0].name))
 
     except:
         print('{} Failed'.format(symbol))
 
 
-# Sort and Filter
-def popOver(trio):
-    return trio[1] > s.min_prob_profit
-
-filteredList = list(filter(popOver, bigLongList))
-
+# Sort
 def scaledProfit(trio):
     return trio[1]*trio[2]
 
-sortedList = list(sorted(filteredList, key=scaledProfit))
+sortedList = list(sorted(bigLongList, key=scaledProfit))
 
 
 breakpoint()

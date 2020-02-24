@@ -14,7 +14,7 @@ from stratlist import allstrats, test_list
 tdam = TDAM(token=config.td_token, rf_token=config.td_rf_token)
 
 # Choose domain
-instrument_list = dow30
+instrument_list = test_instruments
 stratlist = allstrats
 
 # Generate
@@ -50,6 +50,9 @@ def popOver(pair):
 def goodBuy(pair):
     return pair[1]
 
+def profRatio(pair):
+    return pair[1] > s.min_profit_ratio
+
 bigLongList = []
 pool = ProcessPool(nodes=10)
 for symbol in allstratcombs:
@@ -67,20 +70,27 @@ for symbol in allstratcombs:
             # early = strat.probOfEarlyExercise(price, wk_vol)
             return (strat, pop)
 
+        def evalRatio(strat, price=price, wk_vol=wk_vol, wk_drift=wk_drift):
+            rat = strat.ratioMaxToExpected(price, wk_vol, wk_drift)
+            return (strat, rat)
+
         def evalExp(strat, price=price, wk_vol=wk_vol, wk_drift=wk_drift):
             exp = strat.expectedProfit(price, wk_vol, wk_drift)
             return exp
 
         for stratlist in allstratcombs[symbol]:
             # Remove strategies that sell ITM options
+            breakpoint()
             goodStrats = pool.map(evalGoodBuy, stratlist)
-            filt0 = list(filter(goodBuy, goodStrats))
-            strats = [i for i, _ in filt0]
+            filt = list(filter(goodBuy, goodStrats))
             # Evaluate probability of profit and filter above threshold
-            popList = pool.map(evalPop, strats)
+            popList = pool.map(evalPop, [st for st, _ in filt])
             filt = list(filter(popOver, popList))
+            # Evaluate profit ratio and filter above threshold
+            profStrats = pool.map(evalRatio, [st for st, _ in filt])
+            filt = list(filter(profRatio, profStrats))
             # Calculate expected profit for remaining strats
-            filtExp = pool.map(evalExp, [st for st, pp in filt])
+            filtExp = pool.map(evalExp, [st for st, _ in filt])
             flat = list(zip(*filt))
             flat.append(filtExp)
             bigLongList += list(zip(*flat))

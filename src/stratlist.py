@@ -1,10 +1,16 @@
 from opstrat import *
 
-stratlist = [IronCondor,
+test_list = [IronButterfly,
+             LongCallSpread,
+             FlipChristmasTreeCallButterfly,
+             ShortStrangle
+            ]
+
+allstrats = [IronCondor,
              IronButterfly,
              #--------
              LongStraddle,
-             ShortStrangle,
+             ShortStraddle,
              LongStrangle,
              ShortStrangle,
              #--------

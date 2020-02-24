@@ -157,8 +157,7 @@ class TDAM(API):
             calls[d] = {}
             for p in callDic[d]:
                 opDic = callDic[d][p][0]
-                # calls[d][p] = Option.fromParams(symbol, param.CALL, opDic['last'], 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
-                calls[d][p] = Option.fromParams(symbol, param.CALL, (opDic['ask']+opDic['bid'])/2, 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
+                calls[d][p] = Option.fromParams(symbol, param.CALL, opDic['last'], 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
 
         puts = {}
         putDic = rq.json()['putExpDateMap']
@@ -166,8 +165,7 @@ class TDAM(API):
             puts[d] = {}
             for p in putDic[d]:
                 opDic = putDic[d][p][0]
-                # puts[d][p] = Option.fromParams(symbol, param.PUT, opDic['last'], 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
-                puts[d][p] = Option.fromParams(symbol, param.PUT, (opDic['ask']+opDic['bid'])/2, 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
+                puts[d][p] = Option.fromParams(symbol, param.PUT, opDic['last'], 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
 
         return {'calls': calls, 'puts': puts}
 

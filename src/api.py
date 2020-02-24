@@ -21,15 +21,3 @@ class API:
             return std_wk
         else:
             fake = 69
-
-
-    def calcWeeklyDrift(self, symbol, months=3):
-        if months >= 1:
-            df = self.history_DF(symbol, ptype='month', period=months, ftype='daily', freq=1)
-            delta = []
-            for i, c in df.iterrows():
-                delta.append((c['close'] - c['open'])/c['open'])
-
-            drf_day = np.array(delta).mean()
-            drf_wk = drf_day*5
-            return drf_wk

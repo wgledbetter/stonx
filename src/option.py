@@ -25,14 +25,6 @@ class Option:
         self.bid = bid
 
 
-    def __str__(self):
-        return '{}: BS = {}, CP = {}, Strike = {}, Premium = {}, n = {}'.format(self.symbol, self.BS, self.CP, self.strike, self.premium, self.n)
-
-
-    def __repr__(self):
-        return '{}: BS = {}, CP = {}, Strike = {}, Premium = {}, n = {}'.format(self.symbol, self.BS, self.CP, self.strike, self.premium, self.n)
-
-
     @classmethod
     def fromParams(cls, symbol, CP, premium, BS, strike, expr, n=s.nContracts, ask=0, bid=0):
         prices = {'premium': premium, 'strike': strike}

@@ -189,7 +189,7 @@ class OpStrat:
         return pb[1][-1][0]
 
 
-    def maxProfit():
+    def maxProfit(self):
         return max(self.profitTrace()['y'])
 
 

@@ -14,7 +14,7 @@ from stratlist import allstrats, test_list
 tdam = TDAM(token=config.td_token, rf_token=config.td_rf_token)
 
 # Choose domain
-instrument_list = test_instruments
+instrument_list = dow30
 stratlist = allstrats
 
 # Generate
@@ -37,7 +37,7 @@ for symbol in instrument_list:
             print('StratGen Failed for {}: {}'.format(symbol, strat.name))
 
 
-savename = 'save_allstratcombs'
+savename = 'save_allstratcombs.pkl'
 savefile = open(savename, 'wb')
 pickle.dump(allstratcombs, savefile)
 savefile.close()
@@ -54,7 +54,7 @@ def profRatio(pair):
     return pair[1] > s.min_profit_ratio
 
 bigLongList = []
-pool = ProcessPool(nodes=10)
+pool = ProcessPool(nodes=15)
 for symbol in allstratcombs:
     tdam.refresh()
     try:
@@ -80,7 +80,6 @@ for symbol in allstratcombs:
 
         for stratlist in allstratcombs[symbol]:
             # Remove strategies that sell ITM options
-            breakpoint()
             goodStrats = pool.map(evalGoodBuy, stratlist)
             filt = list(filter(goodBuy, goodStrats))
             # Evaluate probability of profit and filter above threshold
@@ -108,7 +107,7 @@ sortedList = list(sorted(bigLongList, key=scaledProfit))
 sortedList.reverse()
 
 
-savename = 'save_sortedList'
+savename = 'save_sortedList.pkl'
 savefile = open(savename, 'wb')
 pickle.dump(sortedList, savefile)
 savefile.close()

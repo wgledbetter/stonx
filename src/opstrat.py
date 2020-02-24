@@ -25,6 +25,18 @@ class OpStrat:
         self.oplist = oplist
 
 
+    def __str__(self):
+        string = self.name + ':\n'
+        for op in self.oplist:
+            string += '  {}\n'.format(op.__str__())
+
+        return string
+
+
+    def __repr__(self):
+        return '{}: {}'.format(self.name, self.symbol)
+
+
     #---------------------------------------------------------------------------
     ## Measures
     def cost(self):
@@ -52,9 +64,10 @@ class OpStrat:
 
 
     def anyInMoney(self, stock_price):
-        im = True
+        im = False
         for op in self.oplist:
-            im = im and op.inTheMoney(stock_price)
+            if not im and op.inTheMoney(stock_price):
+                im = True
 
         return im
 
@@ -69,6 +82,18 @@ class OpStrat:
 
     def remainingMarketDays(self):
         return self.oplist[0].remainingMarketDays()
+
+
+    def safeSell(self, stock_price):
+        # Returns false if you're selling ITM
+        # Use this before executing by passing in the current stock price.
+        # If you're selling something ITM, it could be exercised immediately, which is bad for you.
+        safe = True
+        for op in self.oplist:
+            if safe and op.BS == p.SELL:
+                safe = safe and not op.inTheMoney(stock_price)
+
+        return safe
 
 
     #---------------------------------------------------------------------------
@@ -309,7 +334,7 @@ class LongStraddle(OpStrat):
         self.oplist = []
         optype = self.structure
         self.oplist.append(Option(symbol, optype['A'][0], struct['A'][0], struct['expr'], n=n*optype['A'][0]['M']))
-        self.oplist.append(Option(symbol, optype['A'][0], struct['A'][1], struct['expr'], n=n*optype['A'][1]['M']))
+        self.oplist.append(Option(symbol, optype['A'][1], struct['A'][1], struct['expr'], n=n*optype['A'][1]['M']))
         self.expr = self.oplist[0].expr
 
 
@@ -326,7 +351,7 @@ class ShortStraddle(OpStrat):
         self.oplist = []
         optype = self.structure
         self.oplist.append(Option(symbol, optype['A'][0], struct['A'][0], struct['expr'], n=n*optype['A'][0]['M']))
-        self.oplist.append(Option(symbol, optype['A'][0], struct['A'][1], struct['expr'], n=n*optype['A'][1]['M']))
+        self.oplist.append(Option(symbol, optype['A'][1], struct['A'][1], struct['expr'], n=n*optype['A'][1]['M']))
         self.expr = self.oplist[0].expr
 
 
@@ -497,7 +522,7 @@ class LongCallSpread(OpStrat):
 #_______________________________________________________________________________
 class LongPutSpread(OpStrat):
     # https://www.optionsplaybook.com/option-strategies/long-put-spread/
-    name = 'Long Call Spread'
+    name = 'Long Put Spread'
     structure = {'A': [{'BS': p.SELL, 'CP': p.PUT, 'M': 1}],
                  'B': [{'BS': p.BUY, 'CP': p.PUT, 'M': 1}],
                  'n': 2

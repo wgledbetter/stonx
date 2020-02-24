@@ -1,11 +1,13 @@
-test_instruments = ['TSLA',
+test_instruments = [# 'TSLA',
                     'SPCE',
                     'WM',
                     'MMM',
                     # 'AMZN',
-                    # 'SPY',
+                    'SPY',
                     # 'OEX',
-                    'QQQ']
+                    'QQQ',
+                    'BA',
+                    'BKNG']
 
 
 popular = ['TSLA',

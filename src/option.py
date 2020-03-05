@@ -76,3 +76,13 @@ class Option:
     def remainingMarketDays(self):
         now = datetime.now().replace(tzinfo=get_localzone())
         return mktdays_between(now, self.expr)
+
+
+    #---------------------------------------------------------------------------
+    ## API Commands
+    def update(self, api):
+        self.premium = api.optionPrice(self.symbol, self.CP, self.strike, self.expr.strftime('%Y-%m-%d'))
+
+
+    def execute(self, api):
+        return 69

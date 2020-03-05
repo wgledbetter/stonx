@@ -11,8 +11,8 @@ from functions import normal, stockPDF
 import settings as s
 
 # Plotting setup
-PLOT_EDGE = 0.02
-PLOT_RES = 250
+PLOT_EDGE = 0.08
+PLOT_RES = 350
 
 # Probability Integration Upper Bound
 INT_MIN = 0.001
@@ -23,6 +23,8 @@ INT_DENOM = 100
 class OpStrat:
     def __init__(self, oplist=[]):
         self.oplist = oplist
+        self.name = 'Custom'
+        self.symbol = 'Empty'
 
 
     def __str__(self):
@@ -138,6 +140,7 @@ class OpStrat:
         py.plot(fig, './probability_{}_{}_{}.html'.format(filename, self.name, self.symbol))
 
 
+    #___________________________________________________________________________
     def expectedProfit(self, stock_price, wk_vol, wk_drift=0):
         timeToExpInWeeks = self.remainingMarketDays()/5
         def fun(pr, dummy):
@@ -153,6 +156,11 @@ class OpStrat:
         return ep[1][-1][0]
 
 
+    def expectedProfitAPI(self, api):
+        return self.expectedProfit(api.lastPrice(self.symbol), api.calcWeeklyVolatility(self.symbol), wk_drift=api.calcWeeklyDrift(self.symbol))
+
+
+    #___________________________________________________________________________
     def probOfProfit(self, stock_price, wk_vol, wk_drift=0):
         timeToExpInWeeks = self.remainingMarketDays()/5
         def fun(pr, dummy):
@@ -168,6 +176,11 @@ class OpStrat:
         return ep[1][-1][0]
 
 
+    def probOfProfitAPI(self, api):
+        return self.probOfProfit(api.lastPrice(self.symbol), api.calcWeeklyVolatility(self.symbol), wk_drift=api.calcWeeklyDrift(self.symbol))
+
+
+    #___________________________________________________________________________
     def probOfEarlyExercise(self, stock_price, wk_vol, wk_drift=0):
         timeToExpInWeeks = self.remainingMarketDays()/5
         def exprobAtTime(time, dummy):
@@ -194,7 +207,7 @@ class OpStrat:
 
 
     def ratioMaxToExpected(self, stock_price, wk_vol, wk_drift=0):
-        exp = self.expectedProfit(stock_price, wk_drift, wk_drift=wk_drift)
+        exp = self.expectedProfit(stock_price, wk_vol, wk_drift=wk_drift)
         maxP = self.maxProfit()
         return exp/maxP
 
@@ -257,6 +270,18 @@ class OpStrat:
             strats.append(cls(symb, st, n=n))
 
         return strats
+
+
+    #---------------------------------------------------------------------------
+    ## API Commands
+    def update(self, api):
+        for op in self.oplist:
+            op.update(api)
+
+
+    def execute(self, api):
+        for op in self.oplist:
+            op.execute(api)
 
 
 

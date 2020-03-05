@@ -142,14 +142,14 @@ class TDAM(API):
         # Return opchain for the closest friday not greater than now()+weeks
         enddate = (datetime.datetime.now() + datetime.timedelta(weeks=weeks))# .strftime('%Y-%m-%d')
         oneDay = datetime.timedelta(days=1)
-        while enddate.isoweekday() != 4:
+        while enddate.isoweekday() != 5:
             enddate -= oneDay
 
         PARAMS = {'symbol': symbol,
                   'contractType': 'ALL',
                   'strikeCount': strikeCount,
-                  'fromDate': (enddate-oneDay).strftime('%Y-%m-%d'),
-                  'toDate': (enddate+oneDay).strftime('%Y-%m-%d')}
+                  'fromDate': (enddate).strftime('%Y-%m-%d'),
+                  'toDate': (enddate).strftime('%Y-%m-%d')}
         rq = requests.get(urls.OPTIONCHAIN, headers=self.headers(), params=PARAMS)
         calls = {}
         callDic = rq.json()['callExpDateMap']
@@ -157,7 +157,8 @@ class TDAM(API):
             calls[d] = {}
             for p in callDic[d]:
                 opDic = callDic[d][p][0]
-                calls[d][p] = Option.fromParams(symbol, param.CALL, opDic['last'], 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
+                calls[d][p] = Option.fromParams(symbol, param.CALL, opDic['mark'], 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
+                # calls[d][p] = Option.fromParams(symbol, param.CALL, (opDic['bid']+opDic['ask'])/2, 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
 
         puts = {}
         putDic = rq.json()['putExpDateMap']
@@ -165,7 +166,8 @@ class TDAM(API):
             puts[d] = {}
             for p in putDic[d]:
                 opDic = putDic[d][p][0]
-                puts[d][p] = Option.fromParams(symbol, param.PUT, opDic['last'], 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
+                puts[d][p] = Option.fromParams(symbol, param.PUT, opDic['mark'], 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
+                # puts[d][p] = Option.fromParams(symbol, param.PUT, (opDic['bid']+opDic['ask'])/2, 0, float(p), d, ask=float(opDic['ask']), bid=float(opDic['bid']))
 
         return {'calls': calls, 'puts': puts}
 
@@ -188,3 +190,17 @@ class TDAM(API):
 
     def lastPrice(self, symbol):
         return self.quote(symbol)[symbol]['lastPrice']
+
+
+    def optionPrice(self, symbol, CP, strike, expr):
+        try:
+            PARAMS = {'symbol': symbol,
+                      'contractType': (CP==1)*'CALL' + (CP==-1)*'PUT',
+                      'strike': strike,
+                      'fromDate': expr,
+                      'toDate': expr}
+            rq = requests.get(urls.OPTIONCHAIN, headers=self.headers(), params=PARAMS)
+            opDic = rq.json()[(CP==1)*'callExpDateMap' + (CP==-1)*'putExpDateMap'].popitem()[1].popitem()[1][0]
+            return opDic['mark']
+        except:
+            breakpoint()
